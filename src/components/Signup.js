@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { signup } from "./store/authSlice";
 
 const Signup = () => {
-  const [enteredEmail, setEnteredEmail] = useState("");
-  const [enteredPassword, setEnteredPassword] = useState("");
+    const [enteredEmail, setEnteredEmail] = useState("");
+    const [enteredPassword, setEnteredPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const loading = useSelector((state) => state.auth.loading);
     const error = useSelector((state) => state.auth.error);
