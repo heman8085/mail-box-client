@@ -18,7 +18,7 @@ const Signup = () => {
       alert("Passwords do not match!");
       return;
         }
-        const resultAction = dispatch(signup({ email: enteredEmail, password: enteredPassword }));
+        const resultAction = await dispatch(signup({ email: enteredEmail, password: enteredPassword }));
         if (signup.fulfilled.match(resultAction)) {
             navigate('/login')
         } else {

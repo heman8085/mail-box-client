@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-const initialState = {};
+const initialState = {
+  user: JSON.parse(localStorage.getItem("user")),
+};
 
 //signup
 export const signup = createAsyncThunk(
@@ -69,7 +71,8 @@ export const login = createAsyncThunk(
         idToken: data.idToken,
         localId: data.localId,
         email: data.email,
-      };
+        };
+        localStorage.setItem("user", JSON.stringify(user));
       return user;
     } catch (error) {
       return rejectWithValue(error.message);
