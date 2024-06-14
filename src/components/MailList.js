@@ -21,20 +21,23 @@ const MailList = () => {
     <div className="mail-list">
       {loading && <p>Loading...</p>}
       {error && <p className="error">{error}</p>}
-      <h2>Sent</h2>
+      <h2 className="text-xl font-semibold mb-4">Sent Mails</h2>
       {sentMails.map((mail) => {
         const contentState = convertFromRaw(JSON.parse(mail.content));
         const editorState = EditorState.createWithContent(contentState);
         return (
-          <div key={mail.id} className="mail-item">
-            <p>{mail.to}</p>
-            <h3>{mail.subject}</h3>
+          <div
+            key={mail.id}
+            className="mail-item mb-4 p-4 border border-gray-300 rounded"
+          >
+            <p className="text-gray-500">To : {mail.to}</p>
+            <h3 className="text-gray-500">Subject : {mail.subject}</h3>
             <Editor
               editorState={editorState}
               readOnly
               toolbarHidden
               wrapperClassName="demo-wrapper"
-              editorClassName="demo-editor"
+              editorClassName="demo-editor p-2 border border-gray-300 rounded"
             />
           </div>
         );

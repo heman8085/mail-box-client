@@ -36,7 +36,7 @@ const MailComposer = () => {
       //clear fields
       setTo("");
       setSubject("");
-      setEditorState("");
+      setEditorState(EditorState.createEmpty());
     } else {
       console.error("Failed to send mail", resultAction.payload);
     }
@@ -44,7 +44,7 @@ const MailComposer = () => {
 
   return (
     <div className="mail-composer">
-      <form onSubmit={handleSend}>
+      <form onSubmit={handleSend} className="space-y-4">
         <div>
           <input
             type="email"
@@ -52,6 +52,7 @@ const MailComposer = () => {
             value={to}
             onChange={(e) => setTo(e.target.value)}
             required
+            className="w-full p-2 border border-gray-300 rounded"
           />
         </div>
         <div>
@@ -61,21 +62,28 @@ const MailComposer = () => {
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             required
+            className="w-full p-2 border border-gray-300 rounded"
           />
         </div>
         <Editor
           editorState={editorState}
           toolbarClassName="toolbarClassName"
           wrapperClassName="wrapperClassName"
-          editorClassName="editorClassName"
+          editorClassName="editorClassName p-2 border border-gray-300 rounded"
           onEditorStateChange={onEditorStateChange}
         />
-        <button>{loading ? "Sending..." : "Send"}</button>
-        {error && <p className="error">{error}</p>}
+        <button
+          type="submit"
+          className="bg-blue-500 text-white py-2 px-4 rounded"
+        >
+          {loading ? "Sending..." : "Send"}
+        </button>
+        {error && <p className="error text-red-500">{error}</p>}
       </form>
     </div>
   );
 };
 
 export default MailComposer;
+
 
