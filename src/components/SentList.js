@@ -1,15 +1,16 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchSentMails } from "./store/mailSlice";
 import { convertFromRaw, EditorState } from "draft-js";
 import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 
-const MailList = () => {
+const SentList = () => {
   const dispatch = useDispatch();
   const { sentMails, loading, error } = useSelector((state) => state.mail);
   const user = useSelector((state) => state.auth.user);
   const userEmail = user ? user.email.replace(/\./g, "_") : null;
+  const [isOpenMail, setIsOpenMail] = useState(false);
 
   useEffect(() => {
     if (userEmail) {
@@ -17,6 +18,9 @@ const MailList = () => {
     }
   }, [dispatch, userEmail]);
 
+  const handleMailClick = () => {
+    setIsOpenMail(true);
+}
   return (
     <div className="mail-list">
       {loading && <p>Loading...</p>}
@@ -28,17 +32,19 @@ const MailList = () => {
         return (
           <div
             key={mail.id}
-            className="mail-item mb-4 p-4 border border-gray-300 rounded"
+            className="mail-item mb-4 p-4 border border-gray-300 rounded cursor-pointer"
+            onClick={() => handleMailClick()}
           >
-            <p className="text-gray-500">To : {mail.to}</p>
-            <h3 className="text-gray-500">Subject : {mail.subject}</h3>
-            <Editor
+            {!isOpenMail && <p className="text-gray-500">To : {mail.to}</p>}
+            {isOpenMail && <p className="text-gray-500">To : {mail.to}</p>}
+            {isOpenMail && <h3 className="text-gray-500">Subject : {mail.subject}</h3>}
+            {isOpenMail && <Editor
               editorState={editorState}
               readOnly
               toolbarHidden
               wrapperClassName="demo-wrapper"
               editorClassName="demo-editor p-2 border border-gray-300 rounded"
-            />
+            />}
           </div>
         );
       })}
@@ -46,4 +52,4 @@ const MailList = () => {
   );
 };
 
-export default MailList;
+export default SentList;

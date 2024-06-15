@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { login } from "./store/authSlice";
+import { login } from "../store/authSlice";
 import { Link } from "react-router-dom";
 
 const Login = () => {
@@ -64,7 +64,7 @@ const Login = () => {
           </button>
           <div className="mt-2 text-sm text-gray-300">
             Don't have an account?{" "}
-            <Link to="/auth/signup" className="text-blue-400 hover:underline">
+            <Link to="/signup" className="text-blue-400 hover:underline">
               Sign up
             </Link>
           </div>

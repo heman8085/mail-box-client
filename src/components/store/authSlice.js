@@ -2,6 +2,8 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   user: JSON.parse(localStorage.getItem("user")),
+  loading: false,
+  error: null,
 };
 
 //signup
@@ -10,7 +12,7 @@ export const signup = createAsyncThunk(
   async ({ email, password }, { rejectWithValue }) => {
     try {
       const response = await fetch(
-        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyBbtBrLaYdQSC7H3DI7eo2o0w5hm_kfDFU",
+        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyAcsiBFMWJ37RtJzem-qrHqnPinf6eGLsI",
         {
           method: "POST",
           body: JSON.stringify({
@@ -48,7 +50,7 @@ export const login = createAsyncThunk(
   async ({ email, password }, { rejectWithValue }) => {
     try {
       const response = await fetch(
-        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyBbtBrLaYdQSC7H3DI7eo2o0w5hm_kfDFU",
+        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyAcsiBFMWJ37RtJzem-qrHqnPinf6eGLsI",
         {
           method: "POST",
           body: JSON.stringify({
@@ -71,8 +73,8 @@ export const login = createAsyncThunk(
         idToken: data.idToken,
         localId: data.localId,
         email: data.email,
-        };
-        localStorage.setItem("user", JSON.stringify(user));
+      };
+      localStorage.setItem("user", JSON.stringify(user));
       return user;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -83,7 +85,12 @@ export const login = createAsyncThunk(
 const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    logout: (state) => {
+      localStorage.removeItem("user");
+      state.user = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(signup.pending, (state) => {
@@ -113,4 +120,5 @@ const authSlice = createSlice({
   },
 });
 
+export const { logout } = authSlice.actions;
 export default authSlice.reducer;
