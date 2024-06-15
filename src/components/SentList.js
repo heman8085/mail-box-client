@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchSentMails } from "./store/mailSlice";
+import { fetchSentMails , removeSentMail} from "./store/mailSlice";
 import { convertFromRaw, EditorState } from "draft-js";
 import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
@@ -20,12 +20,17 @@ const SentList = () => {
 
   const handleMailClick = () => {
     setIsOpenMail(true);
-}
+  }
+  const handleDeleteMail = (id) => {
+    dispatch(removeSentMail({userEmail, id}));
+  };
+  
   return (
     <div className="mail-list">
       {loading && <p>Loading...</p>}
       {error && <p className="error">{error}</p>}
       <h2 className="text-xl font-semibold mb-4">Sent Mails</h2>
+      {sentMails.length === 0 && <p>No mails found</p>}
       {sentMails.map((mail) => {
         const contentState = convertFromRaw(JSON.parse(mail.content));
         const editorState = EditorState.createWithContent(contentState);
@@ -37,14 +42,29 @@ const SentList = () => {
           >
             {!isOpenMail && <p className="text-gray-500">To : {mail.to}</p>}
             {isOpenMail && <p className="text-gray-500">To : {mail.to}</p>}
-            {isOpenMail && <h3 className="text-gray-500">Subject : {mail.subject}</h3>}
-            {isOpenMail && <Editor
-              editorState={editorState}
-              readOnly
-              toolbarHidden
-              wrapperClassName="demo-wrapper"
-              editorClassName="demo-editor p-2 border border-gray-300 rounded"
-            />}
+            {isOpenMail && (
+              <h3 className="text-gray-500">Subject : {mail.subject}</h3>
+            )}
+            {isOpenMail && (
+              <Editor
+                editorState={editorState}
+                readOnly
+                toolbarHidden
+                wrapperClassName="demo-wrapper"
+                editorClassName="demo-editor p-2 border border-gray-300 rounded"
+              />
+            )}
+            {isOpenMail && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteMail(mail.id);
+                }}
+                className="bg-red-500 text-white py-1 px-2 rounded mt-2"
+              >
+                Delete
+              </button>
+            )}
           </div>
         );
       })}

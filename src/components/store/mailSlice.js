@@ -1,4 +1,3 @@
-
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const initialState = {
@@ -33,6 +32,21 @@ export const sendMail = createAsyncThunk(
     }
   }
 );
+
+export const removeSentMail = createAsyncThunk(
+  "mail/removeSentMail",
+    async ({ userEmail ,id}, { rejectWithValue }) => {
+     try {
+    await fetch(`https://mail-box-b3a52-default-rtdb.firebaseio.com/mails/${userEmail}/${id}.json`, {
+      method: "DELETE"
+    })
+    return id;
+  
+  } catch (error) {
+    return rejectWithValue(error.message);
+  }
+}
+)
 
 export const fetchSentMails = createAsyncThunk(
   "mail/fetchSentMails",
@@ -95,18 +109,77 @@ export const fetchReceivedMails = createAsyncThunk(
   }
 );
 
+// Mark mail as read
+export const markAsRead = createAsyncThunk(
+  "mail/markAsRead",
+  async (id, { getState, rejectWithValue }) => {
+    const state = getState();
+    const mail = state.mail.receivedMails.find((mail) => mail.id === id);
+
+    try {
+      const response = await fetch(
+        `https://mail-box-b3a52-default-rtdb.firebaseio.com/mails/${mail.from.replace(
+          /\./g,
+          "_"
+        )}/${id}.json`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ read: true }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData.error.message);
+      }
+
+      return { id, read: true };
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// Delete mail
+export const deleteMail = createAsyncThunk(
+  "mail/deleteMail",
+  async (id, { getState, rejectWithValue }) => {
+    const state = getState();
+    const mail = state.mail.receivedMails.find((mail) => mail.id === id);
+
+    try {
+      const response = await fetch(
+        `https://mail-box-b3a52-default-rtdb.firebaseio.com/mails/${mail.from.replace(
+          /\./g,
+          "_"
+        )}/${id}.json`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData.error.message);
+      }
+
+      return id;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
 const mailSlice = createSlice({
   name: "mail",
   initialState,
-  reducers: {
-    markAsRead: (state, action) => {
-      const mail = state.receivedMails.find((m) => m.id === action.payload);
-      if (mail) {
-        mail.read = true;
-      }
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(sendMail.pending, (state) => {
@@ -138,10 +211,26 @@ const mailSlice = createSlice({
       .addCase(fetchReceivedMails.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(markAsRead.fulfilled, (state, action) => {
+        const index = state.receivedMails.findIndex(
+          (mail) => mail.id === action.payload.id
+        );
+        if (index !== -1) {
+          state.receivedMails[index].read = action.payload.read;
+        }
+      })
+      .addCase(deleteMail.fulfilled, (state, action) => {
+        state.receivedMails = state.receivedMails.filter(
+          (mail) => mail.id !== action.payload
+        );
+      })
+      .addCase(removeSentMail.fulfilled, (state, action) => {
+        state.sentMails = state.sentMails.filter(
+          (mail) => mail.id !== action.payload
+        )
       });
   },
 });
 
-export const { markAsRead } = mailSlice.actions;
 export default mailSlice.reducer;
-

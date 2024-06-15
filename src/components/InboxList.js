@@ -1,7 +1,7 @@
 
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchReceivedMails, markAsRead } from "./store/mailSlice";
+import { fetchReceivedMails, markAsRead ,deleteMail} from "./store/mailSlice";
 import { convertFromRaw, EditorState } from "draft-js";
 import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
@@ -21,6 +21,9 @@ const InboxList = () => {
   const handleMailClick = (id) => {
     dispatch(markAsRead(id));
   };
+  const handleDeleteMail = (id) => {
+    dispatch(deleteMail(id));
+  }
 
   return (
     <div className="mail-list">
@@ -39,18 +42,33 @@ const InboxList = () => {
             onClick={() => handleMailClick(mail.id)}
           >
             {!mail.read && (
-              <p className="text-gray-500"><span className="dot bg-blue-500 rounded-full h-3 w-3 inline-block mr-2"></span>
-              From: {mail.from}</p>
+              <p className="text-gray-500">
+                <span className="dot bg-blue-500 rounded-full h-3 w-3 inline-block mr-2"></span>
+                From: {mail.from}
+              </p>
             )}
-            {mail.read && (<p>From: {mail.from}</p>)}
-            {mail.read && (<h3 className="text-gray-500">Subject: {mail.subject}</h3>)}
-            {mail.read && (<Editor
-              editorState={editorState}
-              readOnly
-              toolbarHidden
-              wrapperClassName="demo-wrapper"
-              editorClassName="demo-editor p-2 border border-gray-300 rounded"
-            />)}
+            {mail.read && <p>From: {mail.from}</p>}
+            {mail.read && (
+              <h3 className="text-gray-500">Subject: {mail.subject}</h3>
+            )}
+            {mail.read && (
+              <Editor
+                editorState={editorState}
+                readOnly
+                toolbarHidden
+                wrapperClassName="demo-wrapper"
+                editorClassName="demo-editor p-2 border border-gray-300 rounded"
+              />
+            )}
+            {mail.read && <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteMail(mail.id);
+              }}
+              className="bg-red-500 text-white py-1 px-2 rounded mt-2"
+            >
+              Delete
+            </button>}
           </div>
         );
 
