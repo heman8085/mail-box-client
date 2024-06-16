@@ -9,6 +9,7 @@ import Logout from "./Logout";
 
 const Home = () => {
   const user = useSelector((state) => state.auth.user);
+   const unreadCount = useSelector((state) => state.mail.unreadCount);
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("compose");
 
@@ -35,7 +36,7 @@ const Home = () => {
             activeTab === "inbox" ? "bg-blue-500" : "bg-gray-500"
           } text-white`}
         >
-          Inbox
+          Inbox {unreadCount > 0 && <span>({unreadCount})</span>}
         </button>
         <button
           onClick={() => setActiveTab("sent")}

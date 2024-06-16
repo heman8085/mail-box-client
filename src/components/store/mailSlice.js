@@ -5,6 +5,7 @@ const initialState = {
   sentMails: [],
   receivedMails: [],
   loading: false,
+  unreadCount:0,
   error: null,
 };
 
@@ -93,7 +94,7 @@ export const fetchReceivedMails = createAsyncThunk(
       }
       const data = await response.json();
       const receivedMails = [];
-
+  
       for (const senderEmail in data) {
         for (const mailId in data[senderEmail]) {
           if (data[senderEmail][mailId].to.replace(/\./g, "_") === userEmail) {
@@ -101,7 +102,7 @@ export const fetchReceivedMails = createAsyncThunk(
           }
         }
       }
-
+  
       return receivedMails;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -109,7 +110,7 @@ export const fetchReceivedMails = createAsyncThunk(
   }
 );
 
-// Mark mail as read
+
 export const markAsRead = createAsyncThunk(
   "mail/markAsRead",
   async (id, { getState, rejectWithValue }) => {
@@ -143,7 +144,7 @@ export const markAsRead = createAsyncThunk(
   }
 );
 
-// Delete mail
+
 export const deleteMail = createAsyncThunk(
   "mail/deleteMail",
   async (id, { getState, rejectWithValue }) => {
@@ -206,7 +207,9 @@ const mailSlice = createSlice({
       })
       .addCase(fetchReceivedMails.fulfilled, (state, action) => {
         state.loading = false;
-        state.receivedMails = action.payload;
+        state.receivedMails = action.payload || [];
+         state.unreadCount = action.payload.filter((mail) => !mail.read).length;
+
       })
       .addCase(fetchReceivedMails.rejected, (state, action) => {
         state.loading = false;
@@ -218,6 +221,7 @@ const mailSlice = createSlice({
         );
         if (index !== -1) {
           state.receivedMails[index].read = action.payload.read;
+          state.unreadCount -= 1;
         }
       })
       .addCase(deleteMail.fulfilled, (state, action) => {

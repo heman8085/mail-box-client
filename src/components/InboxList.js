@@ -1,7 +1,6 @@
-
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchReceivedMails, markAsRead ,deleteMail} from "./store/mailSlice";
+import { fetchReceivedMails, markAsRead, deleteMail } from "./store/mailSlice";
 import { convertFromRaw, EditorState } from "draft-js";
 import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
@@ -11,6 +10,7 @@ const InboxList = () => {
   const { receivedMails, loading, error } = useSelector((state) => state.mail);
   const user = useSelector((state) => state.auth.user);
   const userEmail = user ? user.email.replace(/\./g, "_") : null;
+  const [openedEmailId, setOpenedEmailId] = useState(null);
 
   useEffect(() => {
     if (userEmail) {
@@ -19,11 +19,16 @@ const InboxList = () => {
   }, [dispatch, userEmail]);
 
   const handleMailClick = (id) => {
-    dispatch(markAsRead(id));
+    if (openedEmailId === id) {
+      setOpenedEmailId(null);
+    } else {
+      setOpenedEmailId(id);
+      dispatch(markAsRead(id));
+    }
   };
   const handleDeleteMail = (id) => {
     dispatch(deleteMail(id));
-  }
+  };
 
   return (
     <div className="mail-list">
@@ -41,37 +46,36 @@ const InboxList = () => {
             className="mail-item mb-4 p-4 border border-gray-300 rounded cursor-pointer"
             onClick={() => handleMailClick(mail.id)}
           >
-            {!mail.read && (
-              <p className="text-gray-500">
+            <p className="text-gray-500">
+              {!mail.read && (
                 <span className="dot bg-blue-500 rounded-full h-3 w-3 inline-block mr-2"></span>
-                From: {mail.from}
-              </p>
+              )}
+              From: {mail.from}
+            </p>
+
+            {openedEmailId === mail.id && (
+              <>
+                <h3 className="text-gray-500">Subject: {mail.subject}</h3>
+                <Editor
+                  editorState={editorState}
+                  readOnly
+                  toolbarHidden
+                  wrapperClassName="demo-wrapper"
+                  editorClassName="demo-editor p-2 border border-gray-300 rounded"
+                />
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteMail(mail.id);
+                  }}
+                  className="bg-red-500 text-white py-1 px-2 rounded mt-2"
+                >
+                  Delete
+                </button>
+              </>
             )}
-            {mail.read && <p>From: {mail.from}</p>}
-            {mail.read && (
-              <h3 className="text-gray-500">Subject: {mail.subject}</h3>
-            )}
-            {mail.read && (
-              <Editor
-                editorState={editorState}
-                readOnly
-                toolbarHidden
-                wrapperClassName="demo-wrapper"
-                editorClassName="demo-editor p-2 border border-gray-300 rounded"
-              />
-            )}
-            {mail.read && <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDeleteMail(mail.id);
-              }}
-              className="bg-red-500 text-white py-1 px-2 rounded mt-2"
-            >
-              Delete
-            </button>}
           </div>
         );
-
       })}
     </div>
   );
