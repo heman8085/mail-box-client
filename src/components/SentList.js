@@ -1,22 +1,18 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchSentMails, removeSentMail } from "./store/mailSlice";
+import React, { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { removeSentMail } from "./store/mailSlice";
 import { convertFromRaw, EditorState } from "draft-js";
 import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+import useFetchSentMails from "./custom/useFetchSentMails";
 
 const SentList = () => {
   const dispatch = useDispatch();
-  const { sentMails, loading, error } = useSelector((state) => state.mail);
   const user = useSelector((state) => state.auth.user);
   const userEmail = user ? user.email.replace(/\./g, "_") : null;
-  const [openedEmailId, setOpenedEmailId] = useState(null);
+  const { sentMails, loading, error } = useFetchSentMails(userEmail);
 
-  useEffect(() => {
-    if (userEmail) {
-      dispatch(fetchSentMails({ userEmail }));
-    }
-  }, [dispatch, userEmail]);
+  const [openedEmailId, setOpenedEmailId] = useState(null);
 
   const handleMailClick = (id) => {
     if (openedEmailId === id) {

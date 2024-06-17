@@ -68,14 +68,14 @@ const Login = () => {
               Sign up
             </Link>
           </div>
-          <div className="mt-2 text-sm text-gray-300">
+          {/* <div className="mt-2 text-sm text-gray-300">
             <Link
-              to="/auth/forgetPassword"
+              to="/forgetPassword"
               className="text-blue-400 hover:underline"
             >
               Forgot password?
             </Link>
-          </div>
+          </div> */}
         </form>
         {error && (
           <div className="text-red-500 mt-4">{error && <p>{error}</p>}</div>

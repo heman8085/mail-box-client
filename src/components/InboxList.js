@@ -1,45 +1,46 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchReceivedMails, markAsRead, deleteMail } from "./store/mailSlice";
+
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import useFetchReceivedMails from "./custom/useFetchReceivedMails";
+import useMarkAsRead from "./custom/useMarkAsRead";
+import useDeleteMail from "./custom/useDeleteMail";
 import { convertFromRaw, EditorState } from "draft-js";
 import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 
 const InboxList = () => {
-  const dispatch = useDispatch();
-  const { receivedMails, loading, error } = useSelector((state) => state.mail);
   const user = useSelector((state) => state.auth.user);
   const userEmail = user ? user.email.replace(/\./g, "_") : null;
-  const [openedEmailId, setOpenedEmailId] = useState(null);
 
-  useEffect(() => {
-    if (userEmail) {
-      dispatch(fetchReceivedMails({ userEmail }));
-    }
-  }, [dispatch, userEmail]);
+  const { receivedMails, loading, error, unreadCount } =
+    useFetchReceivedMails(userEmail);
+  const { markRead } = useMarkAsRead();
+  const { remove } = useDeleteMail();
+
+  const [openedEmailId, setOpenedEmailId] = useState(null);
 
   const handleMailClick = (id) => {
     if (openedEmailId === id) {
-      setOpenedEmailId(null);
+      setOpenedEmailId(null); 
     } else {
-      setOpenedEmailId(id);
-      dispatch(markAsRead(id));
+      setOpenedEmailId(id); 
+      markRead(id);
     }
-  };
-  const handleDeleteMail = (id) => {
-    dispatch(deleteMail(id));
   };
 
   return (
     <div className="mail-list">
       {loading && <p>Loading...</p>}
       {error && <p className="error">{error}</p>}
-      <h2 className="text-xl font-semibold mb-4">Inbox</h2>
+      <h2 className="text-xl font-semibold mb-4">
+        Inbox ({unreadCount} unread)
+      </h2>
       {receivedMails.length === 0 && <p>No mails found</p>}
 
       {receivedMails.map((mail) => {
         const contentState = convertFromRaw(JSON.parse(mail.content));
         const editorState = EditorState.createWithContent(contentState);
+
         return (
           <div
             key={mail.id}
@@ -52,10 +53,10 @@ const InboxList = () => {
               )}
               From: {mail.from}
             </p>
+            <h3 className="text-gray-500">Subject: {mail.subject}</h3>
 
             {openedEmailId === mail.id && (
               <>
-                <h3 className="text-gray-500">Subject: {mail.subject}</h3>
                 <Editor
                   editorState={editorState}
                   readOnly
@@ -66,7 +67,7 @@ const InboxList = () => {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleDeleteMail(mail.id);
+                    remove(mail.id);
                   }}
                   className="bg-red-500 text-white py-1 px-2 rounded mt-2"
                 >
