@@ -2,21 +2,21 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Modal from "react-modal";
-import { logout } from "./store/authSlice";
+import { logout } from "../store/authSlice";
 
-const Logout = ({setActiveTab}) => {
+const Logout = ({ setActiveTab }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [modalIsOpen, setModalIsOpen] = useState(true);
 
-   const handleLogout = () => {
-     dispatch(logout());
-     navigate("/");
-   };
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/");
+  };
 
   const closeModal = () => {
-      setModalIsOpen(false);
-      setActiveTab("compose");
+    setModalIsOpen(false);
+    setActiveTab("compose");
   };
 
   return (

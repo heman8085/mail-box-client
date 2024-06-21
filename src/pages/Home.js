@@ -1,15 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import MailComposer from "./MailComposer";
-import SentList from "./SentList";
-import InboxList from "./InboxList";
-import Logout from "./Logout";
-
+import MailComposer from "../components/MailComposer";
+import SentList from "../components/SentList";
+import InboxList from "../components/InboxList";
+import Logout from "../components/Logout";
 
 const Home = () => {
   const user = useSelector((state) => state.auth.user);
-   const unreadCount = useSelector((state) => state.mail.unreadCount);
+  const unreadCount = useSelector((state) => state.mail.unreadCount);
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("compose");
 

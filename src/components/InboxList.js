@@ -1,9 +1,8 @@
-
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import useFetchReceivedMails from "./custom/useFetchReceivedMails";
-import useMarkAsRead from "./custom/useMarkAsRead";
-import useDeleteMail from "./custom/useDeleteMail";
+import useFetchReceivedMails from "../hooks/useFetchReceivedMails";
+import useMarkAsRead from "../hooks/useMarkAsRead";
+import useDeleteMail from "../hooks/useDeleteMail";
 import { convertFromRaw, EditorState } from "draft-js";
 import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
@@ -21,9 +20,9 @@ const InboxList = () => {
 
   const handleMailClick = (id) => {
     if (openedEmailId === id) {
-      setOpenedEmailId(null); 
+      setOpenedEmailId(null);
     } else {
-      setOpenedEmailId(id); 
+      setOpenedEmailId(id);
       markRead(id);
     }
   };
@@ -33,7 +32,7 @@ const InboxList = () => {
       {loading && <p>Loading...</p>}
       {error && <p className="error">{error}</p>}
       <h2 className="text-xl font-semibold mb-4">
-        Inbox ({unreadCount} unread)
+        Inbox {unreadCount > 0 && <span>({unreadCount} unread)</span>}
       </h2>
       {receivedMails.length === 0 && <p>No mails found</p>}
 
@@ -65,10 +64,7 @@ const InboxList = () => {
                   editorClassName="demo-editor p-2 border border-gray-300 rounded"
                 />
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    remove(mail.id);
-                  }}
+                  onClick={() => remove(mail.id)}
                   className="bg-red-500 text-white py-1 px-2 rounded mt-2"
                 >
                   Delete

@@ -1,11 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
+const API_URL = process.env.REACT_APP_FIREBASE_API_URL;
+
 const initialState = {
   mails: [],
   sentMails: [],
   receivedMails: [],
   loading: false,
-  unreadCount:0,
+  unreadCount: 0,
   error: null,
 };
 
@@ -13,16 +15,13 @@ export const sendMail = createAsyncThunk(
   "mail/sendMail",
   async ({ userEmail, mailData }, { rejectWithValue }) => {
     try {
-      const response = await fetch(
-        `https://mail-box-b3a52-default-rtdb.firebaseio.com/mails/${userEmail}.json`,
-        {
-          method: "POST",
-          body: JSON.stringify(mailData),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${API_URL}/${userEmail}.json`, {
+        method: "POST",
+        body: JSON.stringify(mailData),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       if (!response.ok) {
         const errorData = await response.json();
         return rejectWithValue(errorData.error.message);
@@ -36,32 +35,28 @@ export const sendMail = createAsyncThunk(
 
 export const removeSentMail = createAsyncThunk(
   "mail/removeSentMail",
-    async ({ userEmail ,id}, { rejectWithValue }) => {
-     try {
-    await fetch(`https://mail-box-b3a52-default-rtdb.firebaseio.com/mails/${userEmail}/${id}.json`, {
-      method: "DELETE"
-    })
-    return id;
-  
-  } catch (error) {
-    return rejectWithValue(error.message);
+  async ({ userEmail, id }, { rejectWithValue }) => {
+    try {
+      await fetch(`${API_URL}/${userEmail}/${id}.json`, {
+        method: "DELETE",
+      });
+      return id;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
   }
-}
-)
+);
 
 export const fetchSentMails = createAsyncThunk(
   "mail/fetchSentMails",
   async ({ userEmail }, { rejectWithValue }) => {
     try {
-      const response = await fetch(
-        `https://mail-box-b3a52-default-rtdb.firebaseio.com/mails/${userEmail}.json`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${API_URL}/${userEmail}.json`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       if (!response.ok) {
         const errorData = await response.json();
         return rejectWithValue(errorData.error.message);
@@ -79,22 +74,19 @@ export const fetchReceivedMails = createAsyncThunk(
   "mail/fetchReceivedMails",
   async ({ userEmail }, { rejectWithValue }) => {
     try {
-      const response = await fetch(
-        `https://mail-box-b3a52-default-rtdb.firebaseio.com/mails.json`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${API_URL}.json`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       if (!response.ok) {
         const errorData = await response.json();
         return rejectWithValue(errorData.error.message);
       }
       const data = await response.json();
       const receivedMails = [];
-  
+
       for (const senderEmail in data) {
         for (const mailId in data[senderEmail]) {
           if (data[senderEmail][mailId].to.replace(/\./g, "_") === userEmail) {
@@ -102,14 +94,13 @@ export const fetchReceivedMails = createAsyncThunk(
           }
         }
       }
-  
+
       return receivedMails;
     } catch (error) {
       return rejectWithValue(error.message);
     }
   }
 );
-
 
 export const markAsRead = createAsyncThunk(
   "mail/markAsRead",
@@ -119,10 +110,7 @@ export const markAsRead = createAsyncThunk(
 
     try {
       const response = await fetch(
-        `https://mail-box-b3a52-default-rtdb.firebaseio.com/mails/${mail.from.replace(
-          /\./g,
-          "_"
-        )}/${id}.json`,
+        `${API_URL}/${mail.from.replace(/\./g, "_")}/${id}.json`,
         {
           method: "PATCH",
           body: JSON.stringify({ read: true }),
@@ -144,7 +132,6 @@ export const markAsRead = createAsyncThunk(
   }
 );
 
-
 export const deleteMail = createAsyncThunk(
   "mail/deleteMail",
   async (id, { getState, rejectWithValue }) => {
@@ -153,10 +140,7 @@ export const deleteMail = createAsyncThunk(
 
     try {
       const response = await fetch(
-        `https://mail-box-b3a52-default-rtdb.firebaseio.com/mails/${mail.from.replace(
-          /\./g,
-          "_"
-        )}/${id}.json`,
+        `${API_URL}/${mail.from.replace(/\./g, "_")}/${id}.json`,
         {
           method: "DELETE",
           headers: {
@@ -208,8 +192,7 @@ const mailSlice = createSlice({
       .addCase(fetchReceivedMails.fulfilled, (state, action) => {
         state.loading = false;
         state.receivedMails = action.payload || [];
-         state.unreadCount = action.payload.filter((mail) => !mail.read).length;
-
+        state.unreadCount = action.payload.filter((mail) => !mail.read).length;
       })
       .addCase(fetchReceivedMails.rejected, (state, action) => {
         state.loading = false;
@@ -232,7 +215,7 @@ const mailSlice = createSlice({
       .addCase(removeSentMail.fulfilled, (state, action) => {
         state.sentMails = state.sentMails.filter(
           (mail) => mail.id !== action.payload
-        )
+        );
       });
   },
 });

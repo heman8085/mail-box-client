@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { removeSentMail } from "./store/mailSlice";
+import { removeSentMail } from "../store/mailSlice";
 import { convertFromRaw, EditorState } from "draft-js";
 import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
-import useFetchSentMails from "./custom/useFetchSentMails";
+import useFetchSentMails from "../hooks/useFetchSentMails";
 
 const SentList = () => {
   const dispatch = useDispatch();
@@ -53,10 +53,7 @@ const SentList = () => {
                   editorClassName="demo-editor p-2 border border-gray-300 rounded"
                 />
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteMail(mail.id);
-                  }}
+                  onClick={() => handleDeleteMail(mail.id)}
                   className="bg-red-500 text-white py-1 px-2 rounded mt-2"
                 >
                   Delete

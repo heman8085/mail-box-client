@@ -6,25 +6,27 @@ const initialState = {
   error: null,
 };
 
+const API_KEY = process.env.REACT_APP_FIREBASE_API_KEY;
+const SIGNUP_URL = `${process.env.REACT_APP_FIREBASE_SIGNUP_URL}${API_KEY}`;
+const LOGIN_URL = `${process.env.REACT_APP_FIREBASE_LOGIN_URL}${API_KEY}`;
+
+
 //signup
 export const signup = createAsyncThunk(
-  "auth/singup",
+  "auth/signup",
   async ({ email, password }, { rejectWithValue }) => {
     try {
-      const response = await fetch(
-        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyAcsiBFMWJ37RtJzem-qrHqnPinf6eGLsI",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            email,
-            password,
-            returnSecureToken: true,
-          }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(SIGNUP_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          email,
+          password,
+          returnSecureToken: true,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       if (!response.ok) {
         const errorData = await response.json();
         return rejectWithValue(errorData.error.message);
@@ -49,20 +51,17 @@ export const login = createAsyncThunk(
   "auth/login",
   async ({ email, password }, { rejectWithValue }) => {
     try {
-      const response = await fetch(
-        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyAcsiBFMWJ37RtJzem-qrHqnPinf6eGLsI",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            email,
-            password,
-            returnSecureToken: true,
-          }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(LOGIN_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          email,
+          password,
+          returnSecureToken: true,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       if (!response.ok) {
         const errorData = await response.json();
         return rejectWithValue(errorData.error.message);
